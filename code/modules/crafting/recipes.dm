@@ -1,3 +1,5 @@
+GLOBAL_CRAFTING_ICON_CACHE = list()
+
 /datum/crafting_recipe
 	var/name = "" //in-game display name
 	var/reqs[] = list() //type paths of items consumed associated with how many are needed
@@ -12,6 +14,31 @@
 	var/subcategory = CAT_NONE
 	var/always_availible = TRUE //Set to FALSE if it needs to be learned first.
 	var/alert_admins_on_craft = FALSE
+
+/datum/crafting_recipe/New()
+	..()
+	update_result_icon()
+
+/datum/crafting_recipe/proc/update_result_icon()
+	if(GLOBAL_CRAFTING_ICON_CACHE[result])
+		base64icon = GLOBAL_CRAFTING_ICON_CACHE[result]
+		return
+
+	var/icon_result = get_result_icon()
+	if(icon_result)
+		base64icon = icon_result
+		GLOBAL_CRAFTING_ICON_CACHE[result] = icon_result
+
+/datum/crafting_recipe/proc/get_result_icon()
+	if(icon && icon_state)
+		var/icon/I = icon(icon, icon_state, SOUTH, 1, FALSE) // если в рецепте задана иконка, используем её
+		return icon2base64(I)
+
+	if(result)
+		var/icon/I = icon(initial(result.icon), initial(result.icon_state), SOUTH, 1, FALSE)
+		return icon2base64(I)
+
+	return null
 
 /datum/crafting_recipe/IED
 	name = "IED"
